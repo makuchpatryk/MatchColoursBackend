@@ -1,12 +1,9 @@
 {
-  "version": 2,
   "builds": [
     {
       "src": "config/wsgi.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "build_files.sh"
+      "use": "@ardnt/vercel-python-wsgi",
+      "config": { "maxLambdaSize": "15mb" }
     }
   ],
   "routes": [
