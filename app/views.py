@@ -58,7 +58,7 @@ class GoogleLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
                 registration_method='google'
             )
             
-            access_token, refresh_token = GoogleProvider.generate_tokens_for_user(user)
+            access_token, refresh_token = provider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
@@ -111,10 +111,10 @@ class GithubLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
                 email=user_data['email'],
                 first_name=first_name,
                 last_name=last_name,
-                registration_method='google'
+                registration_method='github'
             )
             
-            access_token, refresh_token = GithubProvider.generate_tokens_for_user(user)
+            access_token, refresh_token = provider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
