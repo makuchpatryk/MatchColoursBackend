@@ -6,6 +6,7 @@ class User(AbstractUser):
     email = models.CharField(max_length=250, unique=False, null=False, blank=False)
     REGISTRATION_CHOICES = [
         ('google', 'Google'),
+        ('github', 'Github'),
     ]
     registration_method = models.CharField(
         max_length=10,

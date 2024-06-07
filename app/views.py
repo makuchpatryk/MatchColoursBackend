@@ -1,11 +1,11 @@
 from urllib.parse import urlencode
+from app.providers import GithubProvider, GoogleProvider
 from rest_framework import serializers
 from rest_framework.views import APIView
 from django.conf import settings
 from django.shortcuts import redirect
 from rest_framework.response import Response
 from .mixins import ApiAuthMixin, PublicApiMixin, ApiErrorsMixin
-from .utils import github_get_user_info, google_get_access_token, google_get_user_info, generate_tokens_for_user, github_get_access_token
 from .models import User
 from rest_framework import status
 from .serializers import UserSerializer
@@ -32,13 +32,15 @@ class GoogleLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
             return redirect(f'{login_url}?{params}')
 
         redirect_uri = f'{settings.BASE_FRONTEND_URL}/confirm/google'
-        access_token = google_get_access_token(code=code, 
+        
+        provider = GoogleProvider()
+        access_token = provider.get_access_token(code=code, 
                                                redirect_uri=redirect_uri)
 
-        user_data = google_get_user_info(access_token=access_token)
+        user_data = provider.get_user_info(access_token=access_token)
         try:
             user = User.objects.get(email=user_data['email'])
-            access_token, refresh_token = generate_tokens_for_user(user)
+            access_token, refresh_token = provider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
@@ -56,7 +58,7 @@ class GoogleLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
                 registration_method='google'
             )
             
-            access_token, refresh_token = generate_tokens_for_user(user)
+            access_token, refresh_token = GoogleProvider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
@@ -85,14 +87,16 @@ class GithubLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
             return redirect(f'{login_url}?{params}')
 
         redirect_uri = f'{settings.BASE_FRONTEND_URL}/confirm/github'
-        access_token = github_get_access_token(code=code, 
+
+        provider = GithubProvider()
+        access_token = provider.get_access_token(code=code, 
                                                redirect_uri=redirect_uri)
 
-        user_data = github_get_user_info(access_token=access_token)
+        user_data = provider.get_user_info(access_token=access_token)
 
         try:
             user = User.objects.get(email=user_data['email'])
-            access_token, refresh_token = generate_tokens_for_user(user)
+            access_token, refresh_token = provider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
@@ -110,7 +114,7 @@ class GithubLoginApi(PublicApiMixin, ApiErrorsMixin, APIView):
                 registration_method='google'
             )
             
-            access_token, refresh_token = generate_tokens_for_user(user)
+            access_token, refresh_token = GithubProvider.generate_tokens_for_user(user)
             response_data = {
                 'user': UserSerializer(user).data,
                 'access_token': str(access_token),
